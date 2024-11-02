@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Video</title>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+</head>
+<body>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        #progress-section, #download-stats {
+            margin-top: 20px;
+        }
+        #progress-bar {
+            width: 100%;
+            background: #555;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 20px;
+        }
+        #progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #00ff00;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #ff5c5c;
+            color: white;
+            transition: background 0.3s;
+        }
+    </style>
+
+    <div class="container">
+        <h1>Your Video is Ready to Download</h1>
+        
+        <!-- YouTube Video Embed -->
+        <div id="video-container">
+            <iframe id="youtube-video" width="100%" height="300" 
+                src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1&controls=1"
+                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
+            </iframe>
+        </div>
+        
+        <div id="progress-section">
+            <div id="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+            <div id="download-stats">
+                <p id="progress-text">Progress: 0%</p>
+                <p id="stats">Speed: 0 MB/s, Downloaded: 0 MB of 0 MB</p>
+            </div>
+        </div>
+        
+        <a id="download-button" href="{{ url_for('download_file', filename=filename) }}" class="download-button">
+            Download Video
+        </a>
+    </div>
+
+    <script>
+        var socket = io.connect();
+
+        // Listen for progress updates
+        socket.on('download_progress', function(data) {
+            document.getElementById("progress-fill").style.width = data.percent + "%";
+            document.getElementById("progress-text").innerText = "Progress: " + data.percent + "%";
+            document.getElementById("stats").innerText = "Speed: " + data.speed + " MB/s, Downloaded: " + data.downloaded_mb + " MB of " + data.total_mb + " MB";
+            
+            // Auto redirect when download reaches 100%
+            if (data.percent === 100) {
+                setTimeout(() => {
+                    document.getElementById("download-button").click();
+                }, 2000); // Delay before clicking the download button
+            }
+        });
+    </script>
+</body>
+</html>

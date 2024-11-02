@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
+</head>
+<body>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: white;
+}
+.container {
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+input[type="text"], select {
+    width: 80%;
+    padding: 10px;
+    margin: 20px 0;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+}
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background: #ff5c5c;
+    color: white;
+    transition: background 0.3s;
+}
+button:hover {
+    background: #ff2b2b;
+}
+.thumbnail {
+    margin-top: 20px;
+    display: none;
+}
+.thumbnail img {
+    width: 100%;
+    border-radius: 10px;
+}
+#progress-section {
+    margin-top: 20px;
+}
+#progress-bar {
+    width: 100%;
+    background: #555;
+    border-radius: 5px;
+    overflow: hidden;
+    height: 20px;
+}
+#progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #00ff00;
+}
+#progress-text, #download-stats {
+    margin-top: 10px;
+}
+.ad-container {
+    margin: 20px 0;
+}
+</style>
+
+<div class="container">
+    <h1>YouTube Video Downloader</h1>
+    <!-- Top Ad Placement -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '852912f6b4ed86ca96819ade9d65e5a4',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/852912f6b4ed86ca96819ade9d65e5a4/invoke.js"></script>
+    </div>
+
+    <input type="text" id="video-url" placeholder="Enter YouTube Video URL">
+    
+    <!-- Middle Ad Placement -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '852912f6b4ed86ca96819ade9d65e5a4',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/852912f6b4ed86ca96819ade9d65e5a4/invoke.js"></script>
+    </div>
+
+    <select id="video-quality">
+        <option value="best">Best Quality</option>
+        <option value="worst">Worst Quality</option>
+        <option value="720p">720p</option>
+        <option value="480p">480p</option>
+        <option value="360p">360p</option>
+    </select>
+    <button onclick="downloadVideo()">Download</button>
+
+    <div class="message" id="message"></div>
+    <div class="thumbnail" id="thumbnail">
+        <h3>Video Thumbnail:</h3>
+        <img id="thumbnail-img" src="" alt="Thumbnail">
+    </div>
+    <div id="progress-section">
+        <div id="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
+        <p id="progress-text">0% downloaded</p>
+        <p id="download-stats">Speed: 0 MB/s | Downloaded: 0 MB of 0 MB</p>
+    </div>
+
+    <!-- Bottom Ad Placement -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '852912f6b4ed86ca96819ade9d65e5a4',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/852912f6b4ed86ca96819ade9d65e5a4/invoke.js"></script>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+
+    socket.on('download_progress', (data) => {
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const downloadStats = document.getElementById('download-stats');
+
+        progressFill.style.width = data.percent + '%';
+        progressText.textContent = `${data.percent}% downloaded`;
+        downloadStats.textContent = `Speed: ${data.speed} MB/s | Downloaded: ${data.downloaded_mb} MB of ${data.total_mb} MB`;
+    });
+
+    async function downloadVideo() {
+        const url = document.getElementById('video-url').value;
+        const quality = document.getElementById('video-quality').value;
+        const messageDiv = document.getElementById('message');
+        const thumbnailDiv = document.getElementById('thumbnail');
+        const thumbnailImg = document.getElementById('thumbnail-img');
+        messageDiv.textContent = '';
+        thumbnailDiv.style.display = 'none';
+
+        if (!url) {
+            messageDiv.textContent = 'Please enter a video URL.';
+            return;
+        }
+        window.open('https://www.profitablecpmrate.com/bnmcijhq?key=63daf2126901e51ae104f006511a2d9a', '_blank');
+        const detailsResponse = await fetch(`/get-video-details?url=${encodeURIComponent(url)}`);
+        const detailsResult = await detailsResponse.json();
+        if (detailsResponse.ok) {
+            thumbnailImg.src = detailsResult.thumbnail;
+            thumbnailDiv.style.display = 'block';
+        } else {
+            messageDiv.textContent = detailsResult.error || 'An error occurred.';
+            return;
+        }
+
+        const response = await fetch('/download', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url, quality })
+        });
+        const result = await response.json();
+        if (response.ok) {
+            window.location.href = `/download-file/${encodeURIComponent(result.filename)}`;
+        } else {
+            messageDiv.textContent = result.error || 'An error occurred during the download.';
+        }
+    }
+</script>
+</body>
+</html>
