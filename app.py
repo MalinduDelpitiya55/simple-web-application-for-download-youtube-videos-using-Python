@@ -11,10 +11,20 @@ DOWNLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "down
 if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
+@app.route("/", methods=["GET", "POST"])
+def handler():
+    try:
+        # Your main function logic
+        return jsonify({
+            "statusCode": 200,
+            "body": "Function executed successfully"
+        }), 200
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({
+            "statusCode": 500,
+            "body": "An internal server error occurred"
+        }), 500
 @app.route('/get-video-details', methods=['GET'])
 def get_video_details():
     url = request.args.get('url')
@@ -30,6 +40,7 @@ def get_video_details():
         return jsonify({"thumbnail": thumbnail, "title": title})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 def progress_hook(d):
     if d['status'] == 'downloading':
